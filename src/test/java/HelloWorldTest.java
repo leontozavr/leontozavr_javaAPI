@@ -22,4 +22,15 @@ public class HelloWorldTest {
         String secondMessage = json.get("messages[1].message");
         System.out.println(secondMessage);
     }
+
+    @Test
+    public void Ex6() {
+        Response response = RestAssured
+                .given()
+                .redirects().follow(false)
+                .when()
+                .get("https://playground.learnqa.ru/api/long_redirect");
+        String url = response.getHeader("Location");
+        System.out.println(url);
+    }
 }
