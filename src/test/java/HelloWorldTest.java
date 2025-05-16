@@ -33,4 +33,30 @@ public class HelloWorldTest {
         String url = response.getHeader("Location");
         System.out.println(url);
     }
+
+    @Test
+    public void Ex7() {
+        String url = "https://playground.learnqa.ru/api/long_redirect";
+        System.out.println("First URL: " + url);
+
+        while (true) {
+            Response response = RestAssured
+                    .given()
+                    .redirects().follow(false)
+                    .when()
+                    .get(url);
+
+            String location = response.getHeader("Location");
+
+            if (location == null || response.getStatusCode() == 200) {
+                break;
+            }
+
+            System.out.println("Redirected to: " + location);
+            url = location;
+        }
+
+        System.out.println("Final URL: " + url);
+    }
+
 }
