@@ -3,6 +3,8 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class HelloWorldTest {
 
     @Test
@@ -59,4 +61,36 @@ public class HelloWorldTest {
         System.out.println("Final URL: " + url);
     }
 
+    @Test
+    public void Ex8() throws InterruptedException {
+
+        Response firstResponse = RestAssured
+                .get("https://playground.learnqa.ru/ajax/api/longtime_job");
+        JsonPath json = firstResponse.jsonPath();
+        String token = json.getString("token");
+        int secondsToReady = json.getInt("seconds");
+        System.out.println("Token: " + token);
+        System.out.println("Seconds to wait: " + secondsToReady);
+
+        Response beforeReadyResponse = RestAssured
+                .given()
+                .queryParam("token", token)
+                .get("https://playground.learnqa.ru/ajax/api/longtime_job");
+        JsonPath beforeReadyJson = beforeReadyResponse.jsonPath();
+        String beforeReadyStatus = beforeReadyJson.getString("status");
+        assertEquals("Job is NOT ready", beforeReadyStatus, "Another value is expected");
+        System.out.println("Status before: " + beforeReadyStatus);
+
+        Thread.sleep((secondsToReady + 1) * 1000L);
+
+        Response afterReadyResponse = RestAssured
+                .given()
+                .queryParam("token", token)
+                .get("https://playground.learnqa.ru/ajax/api/longtime_job");
+        JsonPath afterReadyJson = afterReadyResponse.jsonPath();
+        String afterReadyStatus = afterReadyJson.getString("status");
+        assertEquals("Job is ready", afterReadyStatus, "Another value is expected");
+        String result = afterReadyJson.getString("result");
+        assertEquals("42", result, "Another value is expected");
+    }
 }
